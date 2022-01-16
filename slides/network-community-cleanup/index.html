@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Network community cleanup</title>
+
+        <!-- Maybe a font from https://www.google.com/webfonts ? -->
+        <link type="text/css" href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
+
+        <!--
+            convert -size 16x16 xc:white empty.png
+            base64 -w0 < empty.png ; echo
+        -->
+        <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQAAAAA3iMLMAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QAAd2KE6QAAAAHdElNRQfmAQ8LLhEEKK3mAAAADklEQVQI12P4/5+BFAQA/U4f4XOLpqwAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjItMDEtMTVUMTE6NDY6MTcrMDA6MDD8gjxZAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIyLTAxLTE1VDExOjQ2OjE3KzAwOjAwjd+E5QAAAABJRU5ErkJggg==">
+
+        <!-- Your Style -->
+        <!-- Define the style of your presentation -->
+
+        <!-- The Asciinema player did not show in the slides despite loading and "mounting",
+            so resorting to a link from the slide.
+
+            An iframe works when loading into a loaded document. -->
+        <script>
+            window.addEventListener("load", function() {
+                    let iframe_microtik = document.getElementById("asciinema-microtik");
+                    iframe_microtik.src = "cast/play.html#microtik.cast~poster:npt:0:4";
+                    let iframe_avtech = document.getElementById("asciinema-avtech");
+                    iframe_avtech.src = "cast/play.html#avtech.cast~poster:npt:0:11";
+                });
+        </script>
+        <style>
+          .right {
+            float: right;
+            border: none;
+            padding: 5px;
+          }
+
+          .two-columns {
+            margin-left: 2em;
+            column-count: 2;
+            column-gap: 5px;
+          }
+
+          .flex {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            align-content: flex-start;
+          }
+
+          .tall-narrow-block {
+            height: 80vh;
+            width: 40vw;
+            border: 1px solid black;
+            border-width: 1px 0 0 1px;
+          }
+
+          .medium-block {
+            height: 40vh;
+            width: 40vw;
+            border: 1px solid black;
+            border-width: 1px 0 0 1px;
+          }
+
+          .fit {
+            max-width: 100%;
+            max-height: 100%;
+          }
+
+          html, .view body { background-color: black; counter-reset: slideidx; }
+          body, .view section {
+            background-color: white; border-radius: 12px;
+            font-family: "Nunito", arial, serif;
+          }
+          section, .view head > title {
+            font-size: 2rem;
+          }
+
+          .view section:after {
+            counter-increment: slideidx;
+            content: counter(slideidx, decimal-leading-zero);
+            position: absolute; bottom: -80px; right: 100px;
+            color: white;
+          }
+
+          .view head > title {
+            color: white;
+            text-align: center;
+            margin: 1em 0 1em 0;
+          }
+
+          h1 {
+            margin: 120px 0 30px 0;
+            text-align: center;
+            font-size: 5rem;
+          }
+
+          h2 {
+            text-align: center;
+          }
+          section > h3 {
+            margin: 5px 10px 10px 50px;
+            border-bottom: 0.1px solid;
+          }
+
+          pre {
+            overflow: hidden;
+            font-size: 1.25rem;
+            margin: 0 75px 0 75px;
+            padding: 10px;
+            border: 1px solid;
+            font-weight: bold;
+            background-color: #F7F7F7;
+            width: 80%
+          }
+
+          ul, ol {
+              margin: 40px 100px 0 100px;
+          }
+
+          li > ul, ol {
+              margin: 0 0 15px 50px;
+              list-style-image: none; /* in case parent list has some */
+          }
+
+          mark.next:not([active]) {
+            visibility: visible; /* override the default behavior where next is hidden */
+            background-color: inherit; /* and disable highlighting instead */
+          }
+
+          p {
+            margin: 75px 75px 0 75px;
+            font-size: 3rem;
+          }
+
+          table {
+            margin: auto;
+            font-size: 2.5rem;
+            text-align: center;
+          }
+
+          blockquote {
+            height: 100%;
+            background-color: black;
+            color: white;
+            font-size: 3.75rem;
+            padding: 50px;
+          }
+          blockquote:before {
+            content: open-quote;
+          }
+          blockquote:after {
+            content: close-quote;
+          }
+
+          /* Figures are displayed full-page, with the caption
+             on top of the image/video */
+          figure {
+            background-color: black;
+            width: 100%;
+            height: 100%;
+          }
+          /* figure > * {
+            position: absolute;
+          } */
+          figure > img, figure > video, figure > iframe {
+            width: 90%;
+            height: 90%;
+          }
+          figcaption {
+            margin: 70px;
+            font-size: 3rem;
+            z-index: -1;
+          }
+
+          header {
+            background-color: #F3F4F8;
+            border-bottom: 1px solid #CCC;
+          }
+
+          footer {
+            background-color: #F3F4F8;
+            border-top: 1px solid #CCC;
+            padding-bottom: 4px; /* remember progress bar */
+          }
+
+          section footer {
+            padding: 10px;
+          }
+
+          /* Transition effect */
+          /* Feel free to change the transition effect for original
+             animations. See here:
+             https://developer.mozilla.org/en/CSS/CSS_transitions
+             How to use CSS3 Transitions: */
+          section {
+            transition: left 400ms linear 0s;
+          }
+          .view section {
+            transition: none;
+          }
+
+          .view section[aria-selected] {
+            border: 5px red solid;
+          }
+
+          @media screen {
+            /* Before */
+            section { left: -150%; }
+            /* Now */
+            section[aria-selected] { left: 0; }
+            /* After */
+            section[aria-selected] ~ section { left: +150%; }
+          }
+
+          /* The progressbar, at the bottom of the slides, show the global
+             progress of the presentation. */
+          #progress-bar {
+            height: 4px;
+            background: #AAA;
+          }
+
+          pre {
+              white-space: pre-wrap;
+              font-size: 20px;
+              text-indent: -1em;
+          }
+
+        </style>
+
+        <!-- {{{{ dzslides core
+        #
+        #
+        #     __  __  __       .  __   ___  __
+        #    |  \  / /__` |    | |  \ |__  /__`
+        #    |__/ /_ .__/ |___ | |__/ |___ .__/ core :€
+        #
+        #
+        # The following block of code is not supposed to be edited.
+        # But if you want to change the behavior of these slides,
+        # feel free to hack it!
+        #
+        -->
+
+        <!-- Default Style -->
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          [role="note"] { display: none; }
+          html {
+            font-size: 16px;
+          }
+          body {
+            width: 100vw; height: 100vh;
+            /* position: absolute; top: 50%; left: 50%; */
+            overflow: hidden;
+            display: none;
+          }
+          .view body {
+            position: static;
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            display: inline-block;
+            overflow: visible; overflow-x: hidden;
+            /* undo Dz.onresize */
+            transform: none !important;
+          }
+          .view head, .view head > title { display: block }
+          section {
+            position: absolute;
+            pointer-events: none;
+            width: 100%; height: 100%;
+          }
+          .view section {
+            pointer-events: auto;
+            position: static;
+            /* width: 800px; height: 600px; */
+            /* margin: -150px -200px; */
+            /* float: left; */
+            transform: scale(.4);
+          }
+          .view section > * { pointer-events: none; }
+          section[aria-selected] { pointer-events: auto; }
+          html { overflow: hidden; }
+          html.view { overflow: visible; }
+          body.loaded { display: block; }
+          .next:not([active]) { visibility: hidden; }
+          #progress-bar {
+            bottom: 0;
+            position: absolute;
+            transition: width 400ms linear 0s;
+          }
+          .view #progress-bar {
+            display: none;
+          }
+          header {
+            text-align: right;
+            position: absolute;
+            top: 0;
+            width: 100%;
+          }
+          footer {
+            text-align: right;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+          }
+          .view header { display: none; }
+          .view footer { display: none; }
+
+          /*
+           **************************************
+           Uncomment the following for 16:9 slides
+           **************************************
+           */
+          html { font-size: 12px; }
+          .view section {
+            transform: scale(.3);
+          }
+
+          @media print {
+            section {
+              transition: none;
+              transform: none;
+              position: static;
+              page-break-inside: avoid;
+            }
+            body { overflow: visible; }
+            #progress-bar { display:none; }
+            .next { visibility: visible; }
+          }
+        </style>
+
+        <script>
+          var Dz = {
+            remoteWindows: [],
+            idx: -1,
+            step: 0,
+            html: null,
+            slides: null,
+            progressBar : null,
+            params: {
+              autoplay: "1"
+            }
+          };
+
+          Dz.init = function() {
+            document.body.className = "loaded";
+            this.slides = Array.prototype.slice.call($$("body > section"));
+            this.progressBar = $("#progress-bar");
+            this.html = document.body.parentNode;
+            this.setupParams();
+            this.onhashchange();
+            this.setupTouchEvents();
+            this.onresize();
+            this.setupView();
+          }
+
+          Dz.setupParams = function() {
+            var p = window.location.search.substr(1).split("&");
+            p.forEach(function(e, i, a) {
+              var keyVal = e.split("=");
+              Dz.params[keyVal[0]] = decodeURIComponent(keyVal[1]);
+            });
+            // Specific params handling
+            if (!!+this.params.autoplay)
+              $$.forEach($$("video"), function(v){ v.setAttribute("controls", "") });
+          }
+
+          Dz.onkeydown = function(aEvent) {
+            if (this.isFullScreen()) {
+                if ( aEvent.keyCode == 37) { // left arrow
+                    aEvent.preventDefault();
+                    this.skipVideo(-10);
+                } else if (aEvent.keyCode == 39) {
+                    aEvent.preventDefault();
+                    this.skipVideo(10);
+                } else if (aEvent.keyCode == 32) {
+                    aEvent.preventDefault();
+                    this.toggleContent();
+                }
+                return;
+            }
+            // Don't intercept keyboard shortcuts
+            if (aEvent.altKey
+              || aEvent.ctrlKey
+              || aEvent.metaKey
+              || aEvent.shiftKey) {
+              return;
+            }
+            if ( aEvent.keyCode == 37 // left arrow
+              || aEvent.keyCode == 38 // up arrow
+              || aEvent.keyCode == 33 // page up
+            ) {
+              aEvent.preventDefault();
+              this.back();
+            }
+            if ( aEvent.keyCode == 39 // right arrow
+              || aEvent.keyCode == 40 // down arrow
+              || aEvent.keyCode == 34 // page down
+            ) {
+              aEvent.preventDefault();
+              this.forward();
+            }
+            if (aEvent.keyCode == 35) { // end
+              aEvent.preventDefault();
+              this.goEnd();
+            }
+            if (aEvent.keyCode == 36) { // home
+              aEvent.preventDefault();
+              this.goStart();
+            }
+            if (aEvent.keyCode == 32) { // space
+              aEvent.preventDefault();
+              this.toggleContent();
+            }
+            if (aEvent.keyCode == 70) { // f
+              aEvent.preventDefault();
+              this.goFullscreen();
+            }
+            if (aEvent.keyCode == 79    //o
+             || aEvent.keyCode == 27    //Esc
+            ) {
+              aEvent.preventDefault();
+              this.toggleView();
+            }
+          }
+
+          /* Touch Events */
+
+          Dz.setupTouchEvents = function() {
+            var orgX, newX;
+            var tracking = false;
+
+            var db = document.body;
+            db.addEventListener("touchstart", start.bind(this), false);
+            db.addEventListener("touchmove", move.bind(this), false);
+
+            function start(aEvent) {
+              aEvent.preventDefault();
+              tracking = true;
+              orgX = aEvent.changedTouches[0].pageX;
+            }
+
+            function move(aEvent) {
+              if (!tracking) return;
+              newX = aEvent.changedTouches[0].pageX;
+              if (orgX - newX > 100) {
+                tracking = false;
+                this.forward();
+              } else {
+                if (orgX - newX < -100) {
+                  tracking = false;
+                  this.back();
+                }
+              }
+            }
+          }
+
+          Dz.setupView = function() {
+            document.body.addEventListener("click", function ( e ) {
+              if (!Dz.html.classList.contains("view")) return;
+              if (!e.target || e.target.nodeName != "SECTION") return;
+
+              Dz.html.classList.remove("view");
+              Dz.setCursor(Dz.slides.indexOf(e.target) + 1);
+            }, false);
+          }
+
+          /* Adapt the size of the slides to the window */
+
+          Dz.onresize = function() {
+            /* var db = document.body;
+            var sx = db.clientWidth / window.innerWidth;
+            var sy = db.clientHeight / window.innerHeight;
+            var transform = "scale(" + (1/Math.max(sx, sy)) + ")";
+
+            db.style.transform = transform;
+            db.style.marginTop = -db.clientHeight / 2 + "px";
+            db.style.marginLeft = -db.clientWidth / 2 + "px"; */
+          }
+
+
+          Dz.getNotes = function(aIdx) {
+            var s = $("section:nth-of-type(" + aIdx + ")");
+            var d = s.$("[role=\"note\"]");
+            return d ? d.innerHTML : "";
+          }
+
+          Dz.onmessage = function(aEvent) {
+            var argv = aEvent.data.split(" "), argc = argv.length;
+            argv.forEach(function(e, i, a) { a[i] = decodeURIComponent(e) });
+            var win = aEvent.source;
+            if (argv[0] === "REGISTER" && argc === 1) {
+              this.remoteWindows.push(win);
+              this.postMsg(win, "REGISTERED", document.title, this.slides.length);
+              this.postMsg(win, "CURSOR", this.idx + "." + this.step);
+              return;
+            }
+            if (argv[0] === "BACK" && argc === 1)
+              this.back();
+            if (argv[0] === "FORWARD" && argc === 1)
+              this.forward();
+            if (argv[0] === "START" && argc === 1)
+              this.goStart();
+            if (argv[0] === "END" && argc === 1)
+              this.goEnd();
+            if (argv[0] === "TOGGLE_CONTENT" && argc === 1)
+              this.toggleContent();
+            if (argv[0] === "SET_CURSOR" && argc === 2)
+              window.location.hash = "#" + argv[1];
+            if (argv[0] === "GET_CURSOR" && argc === 1)
+              this.postMsg(win, "CURSOR", this.idx + "." + this.step);
+            if (argv[0] === "GET_NOTES" && argc === 1)
+              this.postMsg(win, "NOTES", this.getNotes(this.idx));
+          }
+
+          Dz.toggleContent = function() {
+            // If a Video is present in this new slide, play it.
+            // If a Video is present in the previous slide, stop it.
+            var s = $("section[aria-selected]");
+            if (s) {
+              var video = s.$("video");
+              if (video) {
+                if (video.ended || video.paused) {
+                  video.play();
+                } else {
+                  video.pause();
+                }
+              }
+            }
+          }
+
+          Dz.skipVideo = function(inc) {
+            var s = $("section[aria-selected]");
+            if (s) {
+              var video = s.$("video");
+              if (video) {
+                if (video.ended || video.paused) {
+                } else {
+                  video.currentTime += inc;
+                }
+              }
+            }
+          }
+
+          Dz.setCursor = function(aIdx, aStep) {
+            // If the user change the slide number in the URL bar, jump
+            // to this slide.
+            aStep = (aStep != 0 && typeof aStep !== "undefined") ? "." + aStep : ".0";
+            window.location.hash = "#" + aIdx + aStep;
+          }
+
+          Dz.onhashchange = function() {
+            var cursor = window.location.hash.split("#"),
+                newidx = 1,
+                newstep = 0;
+            if (cursor.length == 2) {
+              newidx = ~~cursor[1].split(".")[0];
+              newstep = ~~cursor[1].split(".")[1];
+              if (newstep > Dz.slides[newidx - 1].$$(".next").length) {
+                newstep = 0;
+                newidx++;
+              }
+            }
+            this.setProgress(newidx, newstep);
+            if (newidx != this.idx) {
+              this.setSlide(newidx);
+            }
+            if (newstep != this.step) {
+              this.setIncremental(newstep);
+            }
+            for (var i = 0; i < this.remoteWindows.length; i++) {
+              this.postMsg(this.remoteWindows[i], "CURSOR", this.idx + "." + this.step);
+            }
+          }
+
+          Dz.back = function() {
+            if (this.idx == 1) {
+              return;
+            }
+            this.setCursor(this.idx - 1,
+                           this.slides[this.idx - 2].$$(".next[active]").length);
+          }
+
+          Dz.forward = function() {
+            if (this.idx >= this.slides.length &&
+                this.step >= this.slides[this.idx - 1].$$(".next").length) {
+                return;
+            }
+            if (this.html.classList.contains("view") ||
+                this.step >= this.slides[this.idx - 1].$$(".next").length) {
+              this.setCursor(this.idx + 1,
+                             this.slides[this.idx].$$(".next[active]").length);
+            } else {
+              this.setCursor(this.idx, this.step + 1);
+            }
+          }
+
+          Dz.goStart = function() {
+            this.setCursor(1, 0);
+          }
+
+          Dz.goEnd = function() {
+            var lastIdx = this.slides.length;
+            var lastStep = this.slides[lastIdx - 1].$$(".next").length;
+            this.setCursor(lastIdx, lastStep);
+          }
+
+          Dz.toggleView = function() {
+            this.html.classList.toggle("view");
+
+            if (this.html.classList.contains("view")) {
+              $("section[aria-selected]").scrollIntoView(true);
+            }
+          }
+
+          Dz.setSlide = function(aIdx) {
+            this.idx = aIdx;
+            var old = $("section[aria-selected]");
+            var next = $("section:nth-of-type("+ this.idx +")");
+            if (old) {
+              old.removeAttribute("aria-selected");
+              var video = old.$("video");
+              if (video) {
+                video.pause();
+              }
+            }
+            if (next) {
+              next.setAttribute("aria-selected", "true");
+              if (this.html.classList.contains("view")) {
+                next.scrollIntoView();
+              } else {
+                var video = next.$("video");
+                if (video && !!+this.params.autoplay) {
+                  video.play();
+                }
+              }
+            } else {
+              // That should not happen
+              this.idx = -1;
+              // console.warn("Slide doesn't exist.");
+            }
+          }
+
+          Dz.setIncremental = function(aStep) {
+            this.step = aStep;
+            var incrementals = Array.prototype.slice.call(this.slides[this.idx - 1].$$(".next")).sort(function(a, b) {
+                    return Number(a.getAttribute("data-next-order")) - Number(b.getAttribute("data-next-order"));
+                  });
+            var next = incrementals[this.step - 1];
+            if (next) {
+              next.setAttribute("active", true);
+            } else {
+              this.setCursor(this.idx, 0);
+            }
+            return next;
+          }
+
+          Dz.goFullscreen = function() {
+            var s = $("section[aria-selected]");
+            var canvas;
+            if (s) {
+              canvas = s.$("video");
+              if (!canvas) {
+                canvas = s.$("img");
+                if (!canvas) {
+                  canvas = $("html");
+                }
+              }
+            } else {
+              canvas = $("html");
+            }
+            var requestFullscreen = canvas.requestFullscreen || canvas.requestFullScreen 
+                    || canvas.mozRequestFullScreen || canvas.webkitRequestFullScreen;
+            if (requestFullscreen) {
+              requestFullscreen.apply(canvas);
+            }
+          }
+
+          Dz.isFullScreen = function() {
+            return !!(document.fullScreen || document.webkitIsFullScreen || document.mozFullScreen 
+                    || document.msFullscreenElement || document.fullscreenElement);
+          }
+          
+          Dz.setProgress = function(aIdx, aStep) {
+            var slide = $("section:nth-of-type("+ aIdx +")");
+            if (!slide)
+              return;
+            var steps = slide.$$(".next").length + 1,
+                slideSize = 100 / (this.slides.length - 1),
+                stepSize = slideSize / steps;
+            this.progressBar.style.width = ((aIdx - 1) * slideSize + aStep * stepSize) + "%";
+          }
+          
+          Dz.postMsg = function(aWin, aMsg) { // [arg0, [arg1...]]
+            aMsg = [aMsg];
+            for (var i = 2; i < arguments.length; i++)
+              aMsg.push(encodeURIComponent(arguments[i]));
+            aWin.postMessage(aMsg.join(" "), "*");
+          }
+          
+          function init() {
+            Dz.init();
+            window.onkeydown = Dz.onkeydown.bind(Dz);
+            window.onresize = Dz.onresize.bind(Dz);
+            window.onhashchange = Dz.onhashchange.bind(Dz);
+            window.onmessage = Dz.onmessage.bind(Dz);
+          }
+
+          window.addEventListener("load", init, false);
+
+          // Helpers
+          if (!Function.prototype.bind) {
+            Function.prototype.bind = function (oThis) {
+
+              // closest thing possible to the ECMAScript 5 internal IsCallable
+              // function 
+              if (typeof this !== "function")
+              throw new TypeError(
+                "Function.prototype.bind - what is trying to be fBound is not callable"
+              );
+
+              var aArgs = Array.prototype.slice.call(arguments, 1),
+                  fToBind = this,
+                  fNOP = function () {},
+                  fBound = function () {
+                    return fToBind.apply( this instanceof fNOP ? this : oThis || window,
+                           aArgs.concat(Array.prototype.slice.call(arguments)));
+                  };
+
+              fNOP.prototype = this.prototype;
+              fBound.prototype = new fNOP();
+
+              return fBound;
+            };
+          }
+
+          var $ = (HTMLElement.prototype.$ = function(aQuery) {
+            return this.querySelector(aQuery);
+          }).bind(document);
+
+          var $$ = (HTMLElement.prototype.$$ = function(aQuery) {
+            return this.querySelectorAll(aQuery);
+          }).bind(document);
+
+          $$.forEach = function(nodeList, fun) {
+            Array.prototype.forEach.call(nodeList, fun);
+          }
+
+        </script>
+        <!-- vim: set fdm=marker: }}} -->
+    </head>
+
+    <body>
+    <!-- Your Slides -->
+    <!-- One section is one slide -->
+    <!-- Optional: on every page: header and footer -->
+    <!-- header>
+      Network community cleanup
+    </header>
+
+    <footer>by Ilguiz Latypov</footer -->
+    <div id="progress-bar"></div>
+
+    <section>
+        <!-- This is the first slide -->
+        <h1>Network community cleanup</h1>
+        <footer>by Ilguiz Latypov</footer>
+        <div role="note">
+            Hello, my name is Ilguiz Latypov. I wrote a script to check remote
+            routers and sites for two known vulnerabilities. I was born in
+            Russia, studied maths in my home city, then applied as a skilled
+            immigrant to Canada. I did not take certification courses in
+            security, other than in secure software programming (SANS), at the
+            suggestion of my manager Maxim Degtar. It's great to see online
+            "red team" training initiatives such as Hack The Box and Offensive
+            Security available to inquisitive minds.
+        </div>
+    </section>
+
+    <section>
+        <h3>Is it legal to test without permission?</h3>
+        <div class="medium-block right">
+            <img src="img/is-it-legal.png" class="fit"
+                alt="a Quora answer on the legality of unauthorized penetration testing">
+        </div>
+        <ul>
+            <li class="next">18 U.S. Code § 1030 - Fraud and related activity
+                in connection with computers
+                <ul>
+                    <li class="next">(a)(2)(C) "Whoever [..] intentionally
+                        accesses a computer without authorization"
+                    <li class="next">"shall be punished [..]
+                        [by] a fine [..] or imprisonment for not
+                        more than ten years"
+                </ul>
+        </ul>
+        <div role="note">
+            I worked in application security at the time when I wrote the
+            script as a hobby. I was silly enough to ignore possible legal
+            implications. Even though one may think that poking arbitrary IP
+            addresses is a birthright. Even though one may think that own good
+            intentions override any potential suspicions and will be revered. I
+            heard that professional sleuths, police would seldom listen to
+            explanations, however noble the arguments are. They do not have
+            time, motivation or mandate to believe in good reasons.
+        </div>
+    </section>
+
+    <section>
+        <h3>Is it legal to test without permission?</h3>
+        <div class="medium-block right">
+            <img src="img/is-it-legal.png" class="fit"
+                alt="a Quora answer on the legality of unauthorized penetration testing">
+        </div>
+        <ul>
+            <li class="next">17 U.S. Code § 1201 - Circumvention of copyright protection systems
+                <ul>
+                    <li class="next">(a)(1)(A) "No person shall circumvent a technological measure that effectively controls access to a work [..]"
+                </ul>
+            <li class="next"> -- by Kate Vershov Downing, January 31, 2011
+        </ul>
+        <div role="note">
+            Luckily, my two checkers did not backfire. No recipient questioned
+            my motives or reported me, as far as I know. I received a thank-you
+            from a Wilmot township Wi-Fi hotspot administrator, but I am more
+            prudent now. Staying away from the gray area of unauthorized
+            pentesting prevents from turning my Good Samaritan complex into a
+            God's complex.
+        </div>
+    </section>
+
+    <section>
+        <h3>Is it legal to test without permission?</h3>
+        <ul>
+            <li class="next">except when (j)(3) "the information derived from
+                the security testing was used solely to promote the security of
+                the owner or operator [..] [and] "does not facilitate
+                infringement"
+        </ul>
+        <div role="note">
+            To sum up, any unauthorized destructive, resource intense or
+            non-destructive testing can get one in trouble.  The
+            non-destructive testing may be considered malicious, with the goal
+            of stealing sensitive information.  In other words, one does not
+            walk around the neighbourhood checking if the garage doors are
+            poorly protected against radio attacks. In another analogy, as a
+            caring neighbour, one risks looking a creep.
+        </div>
+    </section>
+
+    <section>
+        <h3>Is it legal to test without permission?</h3>
+        <div class="medium-block right">
+            <img src="img/unauthorized-ethical-hacking-canada.png" class="fit"
+                alt="a snippet on unauthorized hacking in Canada by ICLG.com">
+        </div>
+        <ul>
+            <li class="next">In Canada, no unauthorized ethical hacking is
+                expressly allowed, but sentence must be proportional to the
+                gravity.
+            <li class="next">Libraries, archives, museums and educational
+                institutions may be exempt from liability.
+        </ul>
+        <div role="note">
+            I found that some companies publish their official permission to
+            the white hat crowd, with certain conditions such as avoiding
+            destruction, consumption of resources. Some companies ask to avoid
+            reading arbitrary customer data, offering test customer account
+            numbers. Some companies register with crowd-sourcing initiatives
+            such as HackerOne or Bugcrowd.
+        </div>
+    </section>
+
+    <section>
+        <h3>The "community cleanup" script</h3>
+        <div class="medium-block right">
+            <img src="img/cleanup-script-usage.png" class="fit"
+                alt="the usage snippet of the cleanup script on GitHub">
+        </div>
+        <ul>
+            <li class="next"><a href="https://github.com/frantic-search/community-cleanup">https://github.com/frantic-search/community-cleanup</a>
+            <li class="next">calls shodan.io to find devices by the manufacturer name,
+            <li class="next">sends HTTP queries to identify possible vulnerability or infection,
+            <li class="next">sends emails to network administrators of the IP addresses.
+        </ul>
+        <div role="note">
+            I am used to provide a usage screen at the top of the script.  This
+            may be old-fashioned because Python libraries such as Click
+            automate both inputting the arguments and outputting their help
+            texts. The script uses a few Shodan and RDAP (WHOIS) calls. It
+            groups findings by the WHOIS abuse report, technical or
+            administrator email address.
+        </div>
+    </section>
+
+    <section>
+        <h3>WHOIS, RDAP</h3>
+        <div class="medium-block right">
+            <img src="img/whois-rdap-example.png" class="fit"
+                alt="a sample JSON response from the RDAP service showing an abuse contact for an IP address">
+        </div>
+        <ul>
+            <li class="next">"Like WHOIS, RDAP provides access to information about Internet resources"
+            <li class="next">"Unlike WHOIS, RDAP provides [..] a machine-readable [response]"
+        </ul>
+        <div role="note">
+            WHOIS was introduced in 1970s as a people finder but grew to become
+            authoritative meta-data about IP address ownership.
+
+            "Jake [Feinler, future manager of the Internet with a chemistry
+            degree] remembers being asked to make coffee in a meeting with
+            military higher-ups" (Broad Band by Claire L. Evans)
+        </div>
+    </section>
+
+    <section>
+        <h3>Shodan</h3>
+        <div class="medium-block right">
+            <img src="img/shodan-about.png" class="fit"
+                alt="a snippet from shodan.io on its mechanism">
+        </div>
+        <ul>
+            <li class="next">Goes through all IP addresses, ports.
+            <li class="next">Scans their banners.
+            <li class="next">Indexes words and categories for quick search.
+        </ul>
+        <div role="note">
+            Shodan is a search engine for network responses.  It goes as far as
+            snapping unprotected RTSP streams whose HTTP interfaces make them
+            look protected. It OCRs remote desktop banners. It scans industrial
+            control systems.
+        </div>
+    </section>
+
+    <section>
+        <h3>MicroTik checker</h3>
+        <div class="two-columns">
+            <div class="tall-narrow-block"><img src="img/microtik-winbox.png" class="fit"
+                alt="n0p blog article Dissection of Winbox critical vulnerability"></div>
+            <div class="medium-block"><img src="img/microtik-thehackernews.png" class="fit"
+                alt="thehackernews.com on abusing MicroTik routers by turning them into a botnet"></div>
+            <div class="medium-block"><img src="img/coinhive-checker.png" class="fit"
+                alt="a snippet of the cleanup script showing the search for the word coinhive"></div>
+        </div>
+        <div role="note">
+            The MicroTik checker smells out the routers by the said
+            manufacturer that fell victim of hacking its "WinBox session"
+            weakness. WinBox is a Windows GUI admin tool supplied by the
+            manufacturer. Some malicious actors made use of the weakness
+            replacing the HTML pages of the router with a javascript that mined
+            bitcoins in the browsers of the router's administrators.  The
+            checker tests for the javascript presence in HTTP responses.  It
+            does not test for the original weakness.
+        </div>
+    </section>
+
+    <section>
+        <h6>MicroTik checker: launching the script, checking own mailbox</h6>
+        <figure>
+            <iframe id="asciinema-microtik"></iframe>
+        </figure>
+    </section>
+
+    <section>
+        <h3>AVTech checker</h3>
+        <div class="two-columns">
+            <div class="medium-block"><img src="img/avtech.png" class="fit"
+                alt="A year 2016 message on AVTech vulnerabilities in the Bugtraq mailing list"></div>
+            <div class="medium-block"><img src="img/avtech1.png" class="fit"
+                alt="An arbitrary vulnerable device showing its configuration without authenticating"></div>
+            <div class="medium-block"><img src="img/avtech-checker.png" class="fit"
+                alt="A snippet of the cleanup script showing the search for the words Firmware.Version"></div>
+            <div class="medium-block"><img src="img/avtech2.png" class="fit"
+                alt="An arbitrary vulnerable device showing its credentials without authenticating; some of them indicate attempts of injecting a botnet script"></div>
+        </div>
+        <div role="note">
+            The other weakness the script checks is unauthorized access to the
+            "nobody" user's device status page of AVTech cameras.  This
+            correlates with the more severe weakness of unauthorized access to
+            the credentials page. We can see that one vulnerable device was
+            already abused as its credentials page has passwords that look
+            overwritten in an attempt to inject and install a code AV.sh from a
+            malicious server.
+        </div>
+    </section>
+
+     <section>
+        <h6>AVTech checker: launching the script, checking own mailbox</h6>
+        <figure>
+            <iframe id="asciinema-avtech"></iframe>
+        </figure>
+    </section>
+
+    <section>
+        <h3>Improvements, enhancements, changes?</h3>
+        <ul>
+            <li class="next">Detect log4shell via HTTP request headers, HTTP
+                form parameters? Just detecting an incoming connection up to
+                few minutes past the request would be good enough.
+            <li class="next">Shadow Server Foundation “freely share targeted
+                information with vetted governments, network owners, CSIRTs and
+                others”.  This is smarter than advertising the findings to
+                WHOIS admins which may be misinterpreted as ransom.
+            <li class="next">Automate targeted investigations for companies who
+                agree to crowd-sourced pentesting.  For example, Certificate
+                Transparency exposes dozens of host names and IP addresses
+                (sometimes externally accessible) that are registered by one
+                company.
+        </ul>
+        <div role="note">
+        </div>
+    </section>
+
+    </body>
+</html>

@@ -1,0 +1,29 @@
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="asciinema-player.css" />
+  <script src="asciinema-player.min.js"></script>
+  <script>
+            window.addEventListener("load", function() {
+                    let castfile = document.location.hash.substring(1);
+                    // let castopts = { fit: false, fontSize: "medium" };
+                    let castopts = { fit: "both" };
+                    let castsplit = castfile.split("~");
+                    castfile = castsplit[0];
+                    for (const elm of castsplit.slice(1)) {
+                        let sep = elm.indexOf(":");
+                        if (sep > 0) {
+                          let name = elm.substring(0, sep);
+                          let value = elm.substring(sep + 1);
+                          castopts[name] = value;
+                        }
+                    }
+                    AsciinemaPlayer.create(castfile,
+                        document.getElementById("cinema"),
+                        castopts);
+                    });
+  </script>
+</head>
+<body>
+  <div id="cinema"></div>
+</body>
+</html>
