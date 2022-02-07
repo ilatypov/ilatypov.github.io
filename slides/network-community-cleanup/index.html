@@ -23,10 +23,17 @@
             An iframe works when loading into a loaded document. -->
         <script>
             window.addEventListener("load", function() {
-                    let iframe_microtik = document.getElementById("asciinema-microtik");
-                    iframe_microtik.src = "cast/play.html#microtik.cast~poster:npt:0:4";
+                    let iframe_whois = document.getElementById("asciinema-whois");
+                    iframe_whois.src = "cast/play.html#whois.cast~poster:npt:0:26";
+
+                    let iframe_shodan = document.getElementById("asciinema-shodan");
+                    iframe_shodan.src = "cast/play.html#shodan.cast~poster:npt:0:38";
+
+                    let iframe_mikrotik = document.getElementById("asciinema-mikrotik");
+                    iframe_mikrotik.src = "cast/play.html#mikrotik.cast~poster:npt:1:06";
+
                     let iframe_avtech = document.getElementById("asciinema-avtech");
-                    iframe_avtech.src = "cast/play.html#avtech.cast~poster:npt:0:11";
+                    iframe_avtech.src = "cast/play.html#avtech.cast~poster:npt:0:17";
                 });
         </script>
         <style>
@@ -916,10 +923,19 @@
     </section>
 
     <section>
+        <h6>WHOIS: inquiring human names, network addresses and handles</h6>
+        <figure>
+            <iframe id="asciinema-whois"></iframe>
+        </figure>
+    </section>
+
+    <section>
         <h3>Shodan</h3>
         <div class="medium-block right">
-            <img src="img/shodan-about.png" class="fit"
-                alt="a snippet from shodan.io on its mechanism">
+            <a href="https://help.shodan.io/the-basics/what-is-shodan">
+                <img src="img/shodan-about.png" class="fit"
+                    alt="a snippet from shodan.io on its mechanism">
+            </a>
         </div>
         <ul>
             <li class="next">Goes through all IP addresses, ports.
@@ -935,17 +951,36 @@
     </section>
 
     <section>
-        <h3>MicroTik checker</h3>
+        <h6>Shodan API examples</h6>
+        <figure>
+            <iframe id="asciinema-shodan"></iframe>
+        </figure>
+    </section>
+
+    <section>
+        <h3>MikroTik checker</h3>
         <div class="two-columns">
-            <div class="tall-narrow-block"><img src="img/microtik-winbox.png" class="fit"
-                alt="n0p blog article Dissection of Winbox critical vulnerability"></div>
-            <div class="medium-block"><img src="img/microtik-thehackernews.png" class="fit"
-                alt="thehackernews.com on abusing MicroTik routers by turning them into a botnet"></div>
-            <div class="medium-block"><img src="img/coinhive-checker.png" class="fit"
-                alt="a snippet of the cleanup script showing the search for the word coinhive"></div>
+            <div class="tall-narrow-block">
+                <a href="https://blog.n0p.me/2018/05/2018-05-21-winbox-bug-dissection/">
+                    <img src="img/mikrotik-winbox.png" class="fit"
+                        alt="n0p blog article Dissection of Winbox critical vulnerability">
+                </a>
+            </div>
+            <div class="medium-block">
+                <a href="https://thehackernews.com/2021/12/over-300000-mikrotik-devices-found.html">
+                    <img src="img/mikrotik-thehackernews.png" class="fit"
+                        alt="thehackernews.com on abusing MikroTik routers by turning them into a botnet">
+                </a>
+            </div>
+            <div class="medium-block">
+                <a href="https://github.com/frantic-search/community-cleanup/blob/2d1ed81/shodan.py#L534-L535">
+                    <img src="img/coinhive-checker.png" class="fit"
+                        alt="a snippet of the cleanup script showing the search for the word coinhive">
+                </a>
+            </div>
         </div>
         <div role="note">
-            The MicroTik checker smells out the routers by the said
+            The MikroTik checker smells out the routers by the said
             manufacturer that fell victim of hacking its "WinBox session"
             weakness. WinBox is a Windows GUI admin tool supplied by the
             manufacturer. Some malicious actors made use of the weakness
@@ -957,23 +992,39 @@
     </section>
 
     <section>
-        <h6>MicroTik checker: launching the script, checking own mailbox</h6>
+        <h6>MikroTik checker: launching the script, checking own mailbox</h6>
         <figure>
-            <iframe id="asciinema-microtik"></iframe>
+            <iframe id="asciinema-mikrotik"></iframe>
         </figure>
     </section>
 
     <section>
         <h3>AVTech checker</h3>
         <div class="two-columns">
-            <div class="medium-block"><img src="img/avtech.png" class="fit"
-                alt="A year 2016 message on AVTech vulnerabilities in the Bugtraq mailing list"></div>
-            <div class="medium-block"><img src="img/avtech1.png" class="fit"
-                alt="An arbitrary vulnerable device showing its configuration without authenticating"></div>
-            <div class="medium-block"><img src="img/avtech-checker.png" class="fit"
-                alt="A snippet of the cleanup script showing the search for the words Firmware.Version"></div>
-            <div class="medium-block"><img src="img/avtech2.png" class="fit"
-                alt="An arbitrary vulnerable device showing its credentials without authenticating; some of them indicate attempts of injecting a botnet script"></div>
+            <div class="medium-block">
+                <a href="https://seclists.org/bugtraq/2016/Oct/26">
+                    <img src="img/avtech.png" class="fit"
+                        alt="A year 2016 message on AVTech vulnerabilities in the Bugtraq mailing list">
+                </a>
+            </div>
+            <div class="medium-block">
+                <a href="http://24.202.241.163:8291/cgi-bin/nobody/Machine.cgi?action=get_capability">
+                    <img src="img/avtech1.png" class="fit"
+                        alt="An arbitrary vulnerable device showing its configuration without authenticating">
+                </a>
+            </div>
+            <div class="medium-block">
+                <a href="https://github.com/frantic-search/community-cleanup/blob/2d1ed81/shodan.py#L536-L541">
+                    <img src="img/avtech-checker.png" class="fit"
+                        alt="A snippet of the cleanup script showing the search for the words Firmware.Version">
+                </a>
+            </div>
+            <div class="medium-block">
+                <a href="http://24.202.241.163:8291/cgi-bin/user/Config.cgi?.cab&action=get&category=Account.*">
+                    <img src="img/avtech2.png" class="fit"
+                        alt="An arbitrary vulnerable device showing its credentials without authenticating; some of them indicate attempts of injecting a botnet script">
+                </a>
+            </div>
         </div>
         <div role="note">
             The other weakness the script checks is unauthorized access to the
@@ -986,7 +1037,7 @@
         </div>
     </section>
 
-     <section>
+    <section>
         <h6>AVTech checker: launching the script, checking own mailbox</h6>
         <figure>
             <iframe id="asciinema-avtech"></iframe>
@@ -996,22 +1047,28 @@
     <section>
         <h3>Improvements, enhancements, changes?</h3>
         <ul>
-            <li class="next">Detect log4shell via HTTP request headers, HTTP
-                form parameters? Just detecting an incoming connection up to
-                few minutes past the request would be good enough.
-            <li class="next">Shadow Server Foundation “freely share targeted
-                information with vetted governments, network owners, CSIRTs and
-                others”.  This is smarter than advertising the findings to
-                WHOIS admins which may be misinterpreted as ransom.
-            <li class="next">Automate targeted investigations for companies who
-                agree to crowd-sourced pentesting.  For example, Certificate
-                Transparency exposes dozens of host names and IP addresses
-                (sometimes externally accessible) that are registered by one
-                company.
+            <li class="next">Detect log4shell by HTTP request headers,
+                body parameters and listening few minutes?
+            <li class="next">Shadow Server Foundation "freely share
+                targeted information with vetted governments, network
+                owners [..]".
         </ul>
         <div role="note">
         </div>
     </section>
 
+    <section>
+        <h3>Improvements, enhancements, changes?</h3>
+        <ul>
+            <li class="next">Shadow... Uninvited pentesting may become
+                a suspect by honeypots. Plain advertising to WHOIS
+                admins may be misinterpreted as ransom.
+            <li class="next">Automate for companies.  (Host names leak
+                through Certificate Transparency).
+            <li class="next">Bugs (RDAP bootstrap, HTTPS server name
+                sensitivity).
+        </ul>
+        <div role="note">
+        </div>
     </body>
 </html>

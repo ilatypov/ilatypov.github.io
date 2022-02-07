@@ -6,7 +6,7 @@
             window.addEventListener("load", function() {
                     let castfile = document.location.hash.substring(1);
                     // let castopts = { fit: false, fontSize: "medium" };
-                    let castopts = { fit: "both" };
+                    let castopts = { fit: "both", theme: "solarized-light" };
                     let castsplit = castfile.split("~");
                     castfile = castsplit[0];
                     for (const elm of castsplit.slice(1)) {
